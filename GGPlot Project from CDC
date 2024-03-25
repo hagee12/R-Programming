@@ -1,0 +1,38 @@
+library(pacman)
+p_load(tidyverse,rio)
+install.packages("janitor")
+library(janitor)
+install.packages("lubridate")
+library(lubridate)
+
+# pulled from: https://www.cdc.gov/surveillance/nrevss/rsv/hhsregion.html
+
+rsv_bos <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg1.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "Boston")
+rsv_nyc <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg2.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "NYC")
+rsv_phl <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg3.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "Philadelphia")
+rsv_atl <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg4.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "Atlanta")
+rsv_chi <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg5.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "Chicago")
+rsv_dal <- import("https://www.cdc.gov/surveillance/nrevss/images/rsvhhs/RSV4PPCent3AVG_HHSReg6.htm") %>% select(-1) %>% row_to_names(row_number = 1) %>% mutate(Region = "Dallas")
+
+rsv_all <- rbind(rsv_bos,rsv_nyc,rsv_phl,rsv_atl,rsv_chi,rsv_dal) %>% janitor::clean_names()
+
+##Part 1)
+##Making a graph that shows the total amount of pcr tests by date
+##faceting by region
+rsv_all<-  mutate(rsv_all, rep_week_date= mdy(rep_week_date))
+
+
+ggplot(data=rsv_all, mapping = aes(x=total_pcr_tests, y=rep_week_date))+
+  geom_col(mapping = aes(fill=region))+
+  scale_x_discrete(expand = c(0,0), breaks=seq(from= 0, to=3000, by=500))+
+  scale_y_continuous(breaks=seq(from=2000, to=2040, by=500))+
+  labs(x="Total PCR Tests", y="Date", title="Total PCR Tests by Date, separated by Region")+
+ facet_wrap(~region)
+
+                   
+##Part 2)
+##Making a graph that shows the trends of percent positive tests
+ggplot(data=rsv_all, mapping = aes(x=region, y=percent_positive))+
+  geom_col(color="purple")+
+  scale_y_discrete(breaks=seq(from=0, to=10, by=5))+
+  labs(x="Region", y="Percent Positive", title = "Percent Positive Cases by Region")
