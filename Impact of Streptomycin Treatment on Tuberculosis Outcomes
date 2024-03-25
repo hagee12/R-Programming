@@ -1,0 +1,39 @@
+install.packages("medicaldata")
+install.packages("ggplot2")
+library(medicaldata)
+library(ggplot2)
+library(stats)
+tb <- medicaldata::strep_tb
+
+summary(tb)
+
+#Question1
+#Is Streptomycin treatment more effective in improving survival rates among patients with poor baseline conditions compared to those with better initial health status? 
+Q1 <- glm(improved ~ arm * baseline_condition, 
+             data = tb, family = binomial(link = "logit"))
+summary(Q1)
+#There is no strong evidence to support the idea that Streptomycin treatment is more effective in improving survival rates among patients with poor baseline conditions compared to those with better initial health status. The interaction terms and main effects do not show statistically significant differences in the log-odds of the outcome across different treatment and baseline condition groups.
+
+
+#Question2
+#Plot
+ggplot(tb, mapping = aes(x = arm, y = rad_num)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(alpha = 0.3, color = "red") +
+  labs(x = "Arm", y = "Radiologic Examinations Result in 6 months")
+
+#What is the relationship between the treatment and the progression of tuberculosis as evidenced by radiologic findings at 6 months? 
+Q2 <- glm(rad_num ~ arm , 
+          data = tb)
+summary(Q2)
+#There is evidence to suggest that the treatment has a significant impact on the radiologic examinations result in 6 months. Specifically, being in the "Streptomycin" arm is associated with a better result of radiologic examinations compared to the control group.
+
+##Question 3
+##Does the initial dose of Streptomycin influence the likelihood of developing drug resistance at 6 months?
+Q3 <- glm(dose_strep_g ~ strep_resistance, data=tb)
+summary(Q3)
+##Regression shows that there could be some drug resistance and is statistically significant.
+
+
+
+
